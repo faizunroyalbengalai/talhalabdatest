@@ -104,6 +104,10 @@ resource "aws_lambda_permission" "function_url_public" {
   function_url_auth_type = "NONE"
 
   depends_on = [aws_lambda_function_url.app]
+
+  lifecycle {
+    replace_triggered_by = [aws_lambda_function_url.app]
+  }
 }
 
 output "function_url" {
