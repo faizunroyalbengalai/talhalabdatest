@@ -117,7 +117,11 @@ jobs:
             --s3-bucket "${{ secrets.TF_STATE_BUCKET }}" \
             --s3-key "${{ secrets.PROJECT_NAME }}/lambda.zip" \
             --region "${{ secrets.AWS_REGION }}"
-          # Wait for the update to complete
+          # Wait for the function to become active (handles both fresh creates and updates)
+          aws lambda wait function-active \
+            --function-name "$FUNCTION_NAME" \
+            --region "${{ secrets.AWS_REGION }}"
+          # Also wait for any in-progress update to settle
           aws lambda wait function-updated \
             --function-name "$FUNCTION_NAME" \
             --region "${{ secrets.AWS_REGION }}"
