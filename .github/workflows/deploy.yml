@@ -125,6 +125,14 @@ jobs:
           aws lambda wait function-updated \
             --function-name "$FUNCTION_NAME" \
             --region "${{ secrets.AWS_REGION }}"
+          # Ensure the public-access permission exists (re-apply idempotently)
+          aws lambda add-permission \
+            --function-name "$FUNCTION_NAME" \
+            --statement-id "FunctionURLAllowPublicAccess" \
+            --action "lambda:InvokeFunctionUrl" \
+            --principal "*" \
+            --function-url-auth-type "NONE" \
+            --region "${{ secrets.AWS_REGION }}" 2>/dev/null || true
 
       - name: Smoke test — verify public endpoint returns 2xx/3xx
         run: |-
