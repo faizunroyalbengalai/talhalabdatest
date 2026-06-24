@@ -93,13 +93,17 @@ resource "aws_lambda_function_url" "app" {
   }
 }
 
-# Permission that allows the Function URL to invoke the Lambda anonymously
+# Permission that allows the Function URL to invoke the Lambda anonymously.
+# depends_on ensures the URL resource is fully created before the permission
+# is registered — without this AWS may silently drop the permission, causing 403.
 resource "aws_lambda_permission" "function_url_public" {
   statement_id           = "FunctionURLAllowPublicAccess"
   action                 = "lambda:InvokeFunctionUrl"
   function_name          = aws_lambda_function.app.function_name
   principal              = "*"
   function_url_auth_type = "NONE"
+
+  depends_on = [aws_lambda_function_url.app]
 }
 
 output "function_url" {
